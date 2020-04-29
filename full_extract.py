@@ -2,7 +2,10 @@ import argparse
 from first_page_strip import strip
 from extract import full_process
 from nat_lang import nlp_process
+
 ########################################################
+
+# Hardcoded Values 
 # S3-Bucket:
 s3_bucket_hardcoded = 'firstpass-s3'
 # PDF Name: (Used if Command line args do not specify a PDF.)
@@ -26,6 +29,8 @@ if pdf == None:
 if s3_bucket == None:
     print('No S3 Bucket Specified, using hardcoded value of {bucket}'.format(bucket = s3_bucket_hardcoded))
     s3_bucket = s3_bucket_hardcoded 
+
+############################################################################################################
 
 # Split First Page & Return Output File Name:
 output_file = strip(pdf, s3_bucket)
