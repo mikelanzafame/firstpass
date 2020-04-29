@@ -32,37 +32,16 @@ def isJobComplete(jobId):
     return status
 
 def getJobResults(jobId):
-
     pages = []
 
     time.sleep(5)
 
     client = boto3.client('textract')
     response = client.get_document_text_detection(JobId=jobId)
-    
-    pages.append(response)
-    print("Resultset page recieved: {}".format(len(pages)))
-    nextToken = None
-    if('NextToken' in response):
-        nextToken = response['NextToken']
 
-    while(nextToken):
-        time.sleep(5)
-
-        response = client.get_document_text_detection(JobId=jobId, NextToken=nextToken)
-
-        pages.append(response)
-        print("Resultset page recieved: {}".format(len(pages)))
-        nextToken = None
-        if('NextToken' in response):
-            nextToken = response['NextToken']
-
-    return pages
+    return response
 
 def full_process(output, bucket):
-    # Document
-    # s3BucketName = "firstpass-s3"
-    # documentName = "firstpage+pdf1.pdf"
     s3BucketName = bucket
     documentName = output
 
@@ -71,15 +50,11 @@ def full_process(output, bucket):
     if(isJobComplete(jobId)):
         response = getJobResults(jobId)
 
-    #print(response)
     extracted_text = ''
 
-    # Print detected text
-    for resultPage in response:
-        for item in resultPage["Blocks"]:
-            if item["BlockType"] == "LINE":
-                #print ('\033[94m' +  item["Text"] + '\033[0m')
-                extracted_text += item["Text"]  + '\n'
+    for item in response["Blocks"]:
+        if item["BlockType"] == "LINE":
+            extracted_text += item["Text"]  + '\n'
 
     output_file = open(documentName + 'output.txt', 'w')
     output_file.write(extracted_text)
